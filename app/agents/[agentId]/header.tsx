@@ -27,7 +27,7 @@ import { useToast } from "@/components/ui/use-toast"
 const baseUrl =
   process.env.NODE_ENV === "production"
     ? "https://beta.superagent.sh"
-    : "http://localhost:3000"
+    : "https://superevhouse.netlify.app/"
 
 export default function Header({
   agent,
@@ -59,7 +59,7 @@ export default function Header({
   const embedCode = `<!-- This can be placed anywhere -->
 <div id="superagent-chat"></div>
 
-<!-- This should be placed before the 
+<!-- This should be placed before the
 closing </body> tag -->
 <script src="https://unpkg.com/superagent-chat-embed-v01/dist/web.js"></script>
 <script>
@@ -130,7 +130,7 @@ Superagent({
               <Separator />
               <div className="flex flex-col space-y-2">
                 <p className="font-bold">Embed</p>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   Copy the following code and place it before the closing body
                   tag. You can choose between inline or popup as options.
                 </p>
