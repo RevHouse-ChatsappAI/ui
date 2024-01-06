@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     email: email as string,
     password: password as string,
     options: {
-      emailRedirectTo: `${requestUrl.origin}/auth/callback`,
+      emailRedirectTo: `https://superevhouse.netlify.app/auth/callback`,
     },
   })
 
