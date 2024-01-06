@@ -5,7 +5,7 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 export const dynamic = "force-dynamic"
 
 export async function POST(request: NextRequest) {
-  const requestUrl = new URL(request.url)
+  const requestUrl = "https://superevhouse.netlify.app/"
   const formData = await request.formData()
   const email = formData.get("email")
   const password = formData.get("password")
@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     password: password as string,
   })
 
-  return NextResponse.redirect(requestUrl.origin, {
+  return NextResponse.redirect(requestUrl, {
     status: 301,
   })
 }
