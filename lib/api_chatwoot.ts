@@ -119,7 +119,7 @@ export class ApiChatwootPlatform {
         headers: {
           ...options.headers,
           "Content-Type": "application/json",
-          'api_access_token': 'oTcVsqvDVJ76CJgdLRbDdF5m',
+          'api_access_token': `${process.env.NEXT_PUBLIC_CHATWOOT_PLATFORM_TOKEN}`,
         },
       }
     )
