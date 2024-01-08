@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     .upload(path, data, { contentType: mimeType })
 
   if (error) throw error
-  console.log(storageName)
+
   const {
     data: { publicUrl },
   } = supabase.storage.from(storageName).getPublicUrl(path)

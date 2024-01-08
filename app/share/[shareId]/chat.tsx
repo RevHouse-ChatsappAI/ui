@@ -11,6 +11,7 @@ import { GoThumbsdown, GoThumbsup } from "react-icons/go"
 import { RxChatBubble, RxCopy } from "react-icons/rx"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
+import { v4 as uuidv4 } from "uuid"
 
 import { Agent } from "@/types/agent"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -71,10 +72,12 @@ export function Message({
   type,
   message,
   agent,
+  session,
 }: {
   type: string
   message: string
   agent: Agent
+  session: string | null
 }) {
   const { toast } = useToast()
   const handleFeedback = async (value: number) => {
@@ -83,7 +86,7 @@ export function Message({
     }
 
     await langfuseWeb.score({
-      traceId: agent.id,
+      traceId: session ? `${agent.id}-${session}` : agent.id,
       name: "user-feedback",
       value,
       comment: "I like how personalized the response is",
@@ -250,14 +253,33 @@ export default function Chat({
   agent: Agent
   apiKey: string
 }) {
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [messages, setMessages] = React.useState<
     { type: string; message: string }[]
   >(agent.initialMessage ? [{ type: "ai", message: agent.initialMessage }] : [])
-  const [session, setSession] = React.useState<string | null>(null)
+  const [session, setSession] = React.useState<string | null>(uuidv4())
   const { toast } = useToast()
+
+  const abortControllerRef = React.useRef<AbortController | null>(null)
+
+  const abortStream = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+      setIsLoading(false)
+    }
+  }
 
   async function onSubmit(value: string) {
     let message = ""
+
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+
+    // Create a new AbortController for the new request
+    abortControllerRef.current = new AbortController()
+
+    setIsLoading(true)
 
     setMessages((previousMessages: any) => [
       ...previousMessages,
@@ -269,7 +291,6 @@ export default function Chat({
       { type: "ai", message },
     ])
 
-    const ctrl = new AbortController()
     try {
       await fetchEventSource(
         `${process.env.NEXT_PUBLIC_SUPERAGENT_API_URL}/agents/${agent?.id}/invoke`,
@@ -285,7 +306,10 @@ export default function Chat({
             sessionId: session,
           }),
           openWhenHidden: true,
-          signal: ctrl.signal,
+          signal: abortControllerRef.current.signal,
+          async onclose() {
+            setIsLoading(false)
+          },
           async onmessage(event) {
             if (event.data !== "[END]" && event.event !== "function_call") {
               message += event.data === "" ? `${event.data} \n` : event.data
@@ -309,6 +333,7 @@ export default function Chat({
         }
       )
     } catch {
+      setIsLoading(false)
       setMessages((previousMessages) => {
         let updatedMessages = [...previousMessages]
 
@@ -328,7 +353,7 @@ export default function Chat({
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden border-r">
       <ScrollArea className="relative flex grow flex-col px-4">
-        <div className="from-background absolute inset-x-0 top-0 z-20 h-20 bg-gradient-to-b from-0% to-transparent to-50%" />
+        <div className="absolute inset-x-0 top-0 z-20 h-20 bg-gradient-to-b from-background from-0% to-transparent to-50%" />
         {messages.length === 0 && (
           <div className="mb-20 mt-10 flex flex-col space-y-5 py-5">
             <div className="container mx-auto flex max-w-lg flex-col space-y-5">
@@ -345,7 +370,7 @@ export default function Chat({
                   <CardDescription>{agent?.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mt-6 text-xs">
+                  <p className="mt-6 text-xs text-muted-foreground">
                     Powered by{" "}
                     <a
                       href="https://www.superagent.sh"
@@ -367,14 +392,16 @@ export default function Chat({
                 type={type}
                 message={message}
                 agent={agent}
+                session={session}
               />
             ))}
           </div>
         </div>
       </ScrollArea>
-      <div className="from-background absolute inset-x-0 bottom-0 z-50 h-20 bg-gradient-to-t from-50% to-transparent to-100%">
+      <div className="absolute inset-x-0 bottom-0 z-50 h-20 bg-gradient-to-t from-background from-50% to-transparent to-100%">
         <div className="relative mx-auto mb-6 max-w-2xl px-8">
           <PromptForm
+            onStop={() => abortStream()}
             onSubmit={async (value) => {
               onSubmit(value)
             }}
@@ -385,7 +412,7 @@ export default function Chat({
                 description: "New session created",
               })
             }}
-            isLoading={false}
+            isLoading={isLoading}
           />
         </div>
       </div>

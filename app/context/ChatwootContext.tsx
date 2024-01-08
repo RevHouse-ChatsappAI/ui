@@ -48,6 +48,7 @@ export const ChatwootProvider: React.FC<ChatwootProviderProps> = ({ children }) 
         if (profile) {
           const api = new Api(profile.api_key)
           const response = await api.getToken()
+          console.log(response)
 
           if(response.success && response.data){
             setTokenActive(true)

@@ -1,5 +1,4 @@
 export interface Profile {
-  access_token?: string;
   api_key: string
   created_at: any
   first_name: string

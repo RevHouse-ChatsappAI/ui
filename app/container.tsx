@@ -1,7 +1,5 @@
 "use client"
 import Sidebar from "@/components/sidebar"
-
-
 import { ChatwootProvider } from "./context/ChatwootContext"
 
 interface RootLayoutProps {

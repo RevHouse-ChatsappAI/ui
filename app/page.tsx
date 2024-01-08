@@ -4,7 +4,6 @@ import { useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { useForm } from "react-hook-form"
-import { RxGithubLogo } from "react-icons/rx"
 import * as z from "zod"
 
 import { Button } from "@/components/ui/button"
@@ -76,7 +75,7 @@ export default function IndexPage() {
       <Logo width={50} height={50} />
       <div className="flex flex-col space-y-4">
         <p className="text-lg font-bold">Login to Superagent</p>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           Enter your email to receive a one-time password
         </p>
       </div>

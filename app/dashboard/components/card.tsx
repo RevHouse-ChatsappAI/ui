@@ -8,13 +8,15 @@ import { useAsync, useSetState } from "react-use"
 
 import { Profile } from "@/types/profile"
 import { Api } from "@/lib/api"
-import { ApiChatwoot, ApiChatwootPlatform } from "@/lib/api_chatwoot"
+
 import { Toaster } from "@/components/ui/toaster"
 import { toast } from "@/components/ui/use-toast"
 import { useChatwoot } from "@/app/context/ChatwootContext"
 
 import { FormUserChatwoot } from "./FormUserChatwoot"
 import { ProfileChatwoot } from "./ProfileChatwoot"
+import { ApiChatwootPlatform } from "@/lib/api_chatwoot"
+import { siteConfig } from "@/config/site"
 
 export const CardTable = ({ profile }: { profile: Profile }) => {
   const { token, handleChangeToken, userProfileChatwoot, tokenActive, handleChangeActiveToken } = useChatwoot()
@@ -84,8 +86,10 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
 
     try {
       if (tokenActive) {
-        const { data: agent } = await api.createAgent({ ...form })
-        await api.createAgentLLM(agent.id, llms[0]?.id)
+        const { data: agent } = await api.createAgent({
+          ...form,
+          llmModel: siteConfig.defaultLLM,
+        })
         router.refresh()
         router.push(`/agents/${agent.id}`)
       } else {
@@ -93,11 +97,13 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
         const response = await apiChatwoot.createUser(mock)
         console.log(response)
 
+
         if (response.confirmed) {
           //Create Agent SuperAgent
           const { data: agent } = await api.createAgent({ ...form })
+          console.log(agent.id)
           await api.createAgentLLM(agent.id, llms[0]?.id)
-
+          console.log("Agent: " + agent)
           const apiAgent = agent.id
           const initial_signal_apiAgent = agent.id.slice(0, 3)
 
