@@ -129,7 +129,7 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
             //Agent Bot Details
             const agent_bot_name = `t-${initial_signal_apiAgent}-bot`
             const agent_bot_description = "Agent Bot By SuperAgent"
-            const agent_bot_url = `${process.env.NEXT_PUBLIC_CHATWOOT_API_URL}/webhook/${apiAgent}/chatwoot`
+            const agent_bot_url = `${process.env.NEXT_PUBLIC_SUPERAGENT_API_URL}/webhook/${apiAgent}/chatwoot`
 
             //Create bot agent chatwoot
             const agentBotDetails = {
