@@ -79,31 +79,21 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
       email: user.email,
       password: user.password,
       type: 'SuperAdmin',
-      custom_attributes: {
-        type: 'SuperAdmin'
-      }
+      custom_attributes: {}
     }
 
     try {
-      if (tokenActive) {
-        const { data: agent } = await api.createAgent({
-          ...form,
-          llmModel: siteConfig.defaultLLM,
-        })
-        router.refresh()
-        router.push(`/agents/${agent.id}`)
-      } else {
+      let userCreatedInChatwoot = false;
 
+      if (!tokenActive) {
         const response = await apiChatwoot.createUser(mock)
-        console.log(response)
-
 
         if (response.confirmed) {
+          userCreatedInChatwoot = true;
+
           //Create Agent SuperAgent
           const { data: agent } = await api.createAgent({ ...form })
-          console.log(agent.id)
           await api.createAgentLLM(agent.id, llms[0]?.id)
-          console.log("Agent: " + agent)
           const apiAgent = agent.id
           const initial_signal_apiAgent = agent.id.slice(0, 3)
 
@@ -111,9 +101,7 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
           const accountDetails = {
             name: `Account for ${initial_signal_apiAgent}`,
           }
-          const accountResponse = await apiChatwoot.createAccount(
-            accountDetails
-          )
+          const accountResponse = await apiChatwoot.createAccount(accountDetails)
 
           if (accountResponse && accountResponse.id) {
             // Send the created user as an administrator to the new account
@@ -121,15 +109,12 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
               user_id: response.id,
               role: "administrator",
             }
-            await apiChatwoot.createAccountUser(
-              accountResponse.id,
-              adminUserDetails
-            )
+            await apiChatwoot.createAccountUser(accountResponse.id, adminUserDetails)
 
             //Agent Bot Details
             const agent_bot_name = `t-${initial_signal_apiAgent}-bot`
             const agent_bot_description = "Agent Bot By SuperAgent"
-            const agent_bot_url = `${process.env.NEXT_PUBLIC_SUPERAGENT_API_URL}/webhook/${apiAgent}/chatwoot`
+            const agent_bot_url = `${process.env.NEXT_PUBLIC_CHATWOOT_API_URL}/webhook/${apiAgent}/chatwoot`
 
             //Create bot agent chatwoot
             const agentBotDetails = {
@@ -138,34 +123,49 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
               outgoing_url: agent_bot_url,
               account_id: accountResponse.id,
             }
-            const agentBotResponse = await apiChatwoot.createAgentBot(
-              agentBotDetails
-            )
+            let agentBotResponse;
+            try {
+              agentBotResponse = await apiChatwoot.createAgentBot(agentBotDetails)
+            } catch (error) {
+              console.error("Failed to create agent bot:", error)
+            }
 
-            const respToken = await api.createToken({
-              apiUserChatwoot: accountResponse.id,
-              userToken: response.access_token,
-              agentToken: agentBotResponse.access_token,
-            })
-
-            if (respToken) {
-              toast({
-                color: "green",
-                description: respToken.message,
+            if (agentBotResponse && agentBotResponse.access_token) {
+              const respToken = await api.createToken({
+                apiUserChatwoot: accountResponse.id,
+                userToken: response.access_token,
+                agentToken: agentBotResponse.access_token,
               })
-              handleChangeActiveToken(true)
-              handleChangeToken(response.access_token)
-              router.refresh()
-              router.push(`/agents/${agent.id}`)
+
+              if (respToken) {
+                toast({
+                  color: "green",
+                  description: respToken.message,
+                })
+                handleChangeActiveToken(true)
+                handleChangeToken(response.access_token)
+                setModal(false)
+                router.refresh()
+                router.push(`/agents/${agent.id}`)
+              }
             }
           }
+        } else {
+          throw new Error('Failed to create user in Chatwoot');
         }
       }
+
+      if (!userCreatedInChatwoot) {
+        toast({
+          color: "red",
+          description: "Failed to create user in Chatwoot",
+        })
+      }
     } catch (error) {
-      console.error("Failed to create user:", error)
+      console.error("Failed to create user or agent:", error)
       toast({
         color: "red",
-        description: "Failed to create user",
+        description: "Failed to create user or agent",
       })
     } finally {
       setLoading(false)
