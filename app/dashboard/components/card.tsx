@@ -165,6 +165,7 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
                 })
                 handleChangeActiveToken(true)
                 handleChangeToken(response.access_token)
+                handleProfileChatwoot(response)
                 setModal(false)
                 router.refresh()
                 router.push(`/agents/${agent.id}`)
