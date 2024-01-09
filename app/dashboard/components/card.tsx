@@ -7,19 +7,25 @@ import { IoEyeSharp } from "react-icons/io5"
 import { useAsync, useSetState } from "react-use"
 
 import { Profile } from "@/types/profile"
+import { siteConfig } from "@/config/site"
 import { Api } from "@/lib/api"
-
+import { ApiChatwootPlatform } from "@/lib/api_chatwoot"
 import { Toaster } from "@/components/ui/toaster"
 import { toast } from "@/components/ui/use-toast"
 import { useChatwoot } from "@/app/context/ChatwootContext"
 
 import { FormUserChatwoot } from "./FormUserChatwoot"
 import { ProfileChatwoot } from "./ProfileChatwoot"
-import { ApiChatwootPlatform } from "@/lib/api_chatwoot"
-import { siteConfig } from "@/config/site"
 
 export const CardTable = ({ profile }: { profile: Profile }) => {
-  const { token, handleChangeToken, userProfileChatwoot, tokenActive, handleChangeActiveToken, handleProfileChatwoot } = useChatwoot()
+  const {
+    token,
+    handleChangeToken,
+    userProfileChatwoot,
+    tokenActive,
+    handleChangeActiveToken,
+    handleProfileChatwoot,
+  } = useChatwoot()
   console.log(tokenActive)
   const [modal, setModal] = useState(() => {
     return tokenActive ? true : false
@@ -50,7 +56,6 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
     const { data } = await api.getLLMs()
     return data
   }, [])
-
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -87,30 +92,9 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
         const response = await apiChatwoot.createUser(mock)
 
         if (response.confirmed) {
-          //Create Agent SuperAgent
-          let agent
-          try {
-            const agentResponse = await api.createAgent({ ...form })
-            agent = agentResponse.data
-            if (agent && llms.length > 0) {
-              await api.createAgentLLM(agent.id, llms[0]?.id)
-            }
-          } catch (error: any) {
-            if (error.response && error.response.status === 500) {
-              console.error(
-                "Agent creation encountered an error but may still have been created:",
-                error
-              )
-            } else {
-              throw error
-            }
-          }
-          const apiAgent = agent.id
-          const initial_signal_apiAgent = agent.id.slice(0, 3)
-
           // Create an account for the agent in Chatwoot
           const accountDetails = {
-            name: `Account for ${initial_signal_apiAgent}`,
+            name: `Account for ${response.name}`,
           }
           const accountResponse =
             await apiChatwoot.createAccount(accountDetails)
@@ -126,8 +110,29 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
               adminUserDetails
             )
 
+            //Create Agent SuperAgent
+            let agent
+            try {
+              const agentResponse = await api.createAgent({ ...form })
+              agent = agentResponse.data
+              if (agent && llms.length > 0) {
+                await api.createAgentLLM(agent.id, llms[0]?.id)
+              }
+            } catch (error: any) {
+              if (error.response && error.response.status === 500) {
+                console.error(
+                  "Agent creation encountered an error but may still have been created:",
+                  error
+                )
+              } else {
+                throw error
+              }
+            }
+            const apiAgent = agent.id
+            const initial_signal_apiAgent = agent.id.slice(0, 3)
+
             //Agent Bot Details
-            const agent_bot_name = `t-${initial_signal_apiAgent}-bot`
+            const agent_bot_name = `t-${response.name}-bot`
             const agent_bot_description = "Agent Bot By SuperAgent"
             const agent_bot_url = `${process.env.NEXT_PUBLIC_CHATWOOT_API_URL}/webhook/${apiAgent}/chatwoot`
 
@@ -337,15 +342,21 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
             <button
               disabled={tokenActive}
               onClick={() => setModal(() => !modal)}
-              className={`w-[170px] rounded-md p-2 transition-all${tokenActive ? 'opacity-50' : 'bg-green-600 hover:bg-green-700'}`}
+              className={`w-[170px] rounded-md p-2 transition-all${
+                tokenActive ? "opacity-50" : "bg-green-600 hover:bg-green-700"
+              }`}
             >
-              {tokenActive ? "Ya estas conectado a un operador de Chatwoot" : "Conecta"}
+              {tokenActive
+                ? "Ya estas conectado a un operador de Chatwoot"
+                : "Conecta"}
             </button>
           </div>
         )}
       </div>
       <div className="flex justify-center">
-        {userProfileChatwoot && <ProfileChatwoot profile={userProfileChatwoot} />}
+        {userProfileChatwoot && (
+          <ProfileChatwoot profile={userProfileChatwoot} />
+        )}
       </div>
       <Toaster />
     </div>
