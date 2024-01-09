@@ -21,7 +21,7 @@ export class ApiChatwoot {
         headers: {
           ...options.headers,
           "Content-Type": "application/json",
-          'api_access_token': 'nUtratvqZrJyWueRVuEvp6wX',
+          'api_access_token': this.apiKey ?? '',
           'Ocp-Apim-Subscription-Key': `${process.env.NEXT_PUBLIC_CHATWOOT_SUBSCRIPTION}`
         },
       }
