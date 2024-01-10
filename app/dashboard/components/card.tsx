@@ -143,33 +143,26 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
               outgoing_url: agent_bot_url,
               account_id: accountResponse.id,
             }
-            let agentBotResponse
-            try {
-              agentBotResponse =
-                await apiChatwoot.createAgentBot(agentBotDetails)
-            } catch (error) {
-              console.error("Failed to create agent bot:", error)
-            }
+            const agentBotResponse =
+              await apiChatwoot.createAgentBot(agentBotDetails)
 
-            if (agentBotResponse && agentBotResponse.access_token) {
-              const respToken = await api.createToken({
-                apiUserChatwoot: accountResponse.id,
-                userToken: response.access_token,
-                agentToken: agentBotResponse.access_token,
+            const respToken = await api.createToken({
+              apiUserChatwoot: accountResponse.id,
+              userToken: response.access_token,
+              agentToken: agentBotResponse.access_token,
+            })
+
+            if (respToken) {
+              toast({
+                color: "green",
+                description: respToken.message,
               })
-
-              if (respToken) {
-                toast({
-                  color: "green",
-                  description: respToken.message,
-                })
-                handleChangeActiveToken(true)
-                handleChangeToken(response.access_token)
-                handleProfileChatwoot(response)
-                setModal(false)
-                router.refresh()
-                router.push(`/agents/${agent.id}`)
-              }
+              handleChangeActiveToken(true)
+              handleChangeToken(response.access_token)
+              handleProfileChatwoot(response)
+              setModal(false)
+              router.refresh()
+              router.push(`/agents/${agent.id}`)
             }
           }
         } else {
