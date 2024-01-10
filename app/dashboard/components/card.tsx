@@ -32,6 +32,8 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
   })
   const [visibilty, setVisibilty] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [disabledBtn, setDisabledBtn] = useState(false)
+
   const router = useRouter()
 
   const [form, setForm] = useState({
@@ -88,7 +90,7 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
     }
 
     try {
-      if (!tokenActive) {
+      if (!tokenActive && !disabledBtn) {
         const response = await apiChatwoot.createUser(mock)
 
         if (response.confirmed) {
@@ -177,6 +179,7 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
       })
     } finally {
       setLoading(false)
+      setDisabledBtn(true)
     }
   }
 
@@ -312,7 +315,7 @@ export const CardTable = ({ profile }: { profile: Profile }) => {
                   />
                 </label>
                 <button
-                  disabled={loading}
+                  disabled={loading || disabledBtn}
                   className="rounded-lg border border-white p-2 transition-colors hover:bg-slate-700"
                   type="submit"
                 >
