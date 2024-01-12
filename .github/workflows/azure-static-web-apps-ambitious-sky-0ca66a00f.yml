@@ -20,7 +20,10 @@ jobs:
           submodules: true
           lfs: false
 
-      # Paso para configurar el entorno de Node.js con la última versión
+      # Paso para eliminar la configuración extra de Git
+      - name: Remove Git Extra Config
+        run: git config --global --unset http.https://github.com/.extraheader
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
@@ -30,14 +33,12 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_<GENERATED_HOSTNAME> }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_SKY_0CA66A00F }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
-          # Configuraciones del repositorio y de la construcción
-          app_location: "/" # Ubicación del código fuente de la app
-          api_location: "" # Ubicación del código fuente de la API - opcional
-          output_location: "" # Directorio del contenido de la app construida - opcional
-          # Fin de las configuraciones del repositorio y de la construcción
+          app_location: "/" # App source code path
+          api_location: "" # Api source code path - optional
+          output_location: "" # Built app content directory - optional
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -48,5 +49,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_<GENERATED_HOSTNAME> }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_SKY_0CA66A00F }}
           action: "close"
