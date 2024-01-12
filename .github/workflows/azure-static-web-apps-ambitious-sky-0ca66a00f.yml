@@ -21,13 +21,16 @@ jobs:
           lfs: false
 
       # Paso para eliminar la configuración extra de Git
-      - name: Remove Git Extra Config
-        run: git config --global --unset http.https://github.com/.extraheader
+      - name: Conditional Git Config Removal
+        run: |
+          if git config --global --get http.https://github.com/.extraheader; then
+            git config --global --unset http.https://github.com/.extraheader
+          fi
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
-          node-version: 'node' # Esto instalará la última versión estable de Node.js
+          node-version: "node" # Esto instalará la última versión estable de Node.js
 
       - name: Build And Deploy
         id: builddeploy
