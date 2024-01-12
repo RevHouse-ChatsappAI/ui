@@ -19,19 +19,25 @@ jobs:
         with:
           submodules: true
           lfs: false
+
+      # Paso para configurar el entorno de Node.js con la última versión
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'node' # Esto instalará la última versión estable de Node.js
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_SKY_0CA66A00F }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_<GENERATED_HOSTNAME> }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "" # Built app content directory - optional
-          ###### End of Repository/Build Configurations ######
+          # Configuraciones del repositorio y de la construcción
+          app_location: "/" # Ubicación del código fuente de la app
+          api_location: "" # Ubicación del código fuente de la API - opcional
+          output_location: "" # Directorio del contenido de la app construida - opcional
+          # Fin de las configuraciones del repositorio y de la construcción
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
@@ -42,5 +48,5 @@ jobs:
         id: closepullrequest
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_AMBITIOUS_SKY_0CA66A00F }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_<GENERATED_HOSTNAME> }}
           action: "close"
