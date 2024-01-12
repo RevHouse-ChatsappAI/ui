@@ -19,6 +19,10 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
       - name:  Disable  CI
         run: echo "CI=false" >> $GITHUB_ENV
       - name: Build And Deploy
