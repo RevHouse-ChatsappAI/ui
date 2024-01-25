@@ -1,9 +1,6 @@
 import { cookies } from "next/headers"
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
 
-import { CardPrice } from "./components/CardPrice"
-import { DataTable } from "./data-table"
-
 export default async function Pricing() {
   const supabase = createRouteHandlerClient({ cookies })
   const {
@@ -27,7 +24,7 @@ export default async function Pricing() {
             Con <span className="font-bold">SuperAgent Elite Membership</span> no solo mejoras tu eficiencia y organización, sino que también elevas tu experiencia de trabajo a un nivel superior. ¡Únete hoy y transforma tu manera de trabajar!
             </p>
           </div>
-          <DataTable profile={profile}/>
+          {/* <DataTable profile={profile}/> */}
         </div>
       </section>
     </div>
