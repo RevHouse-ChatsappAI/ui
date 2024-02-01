@@ -1,5 +1,6 @@
 
-import { Profile } from '@/types/profile'
+'use client'
+
 import React, { useEffect, useState } from 'react'
 import { CardPrice } from './components/CardPrice'
 import Stripe from 'stripe';
