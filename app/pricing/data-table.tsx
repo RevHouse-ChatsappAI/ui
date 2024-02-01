@@ -1,4 +1,3 @@
-'use client'
 
 import { Profile } from '@/types/profile'
 import React from 'react'
